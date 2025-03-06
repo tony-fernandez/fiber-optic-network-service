@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cluster-configs
+  namespace: service-layer
+spec:
+  destination:
+    namespace: service-layer
+    server: https://kubernetes.default.svc
+  project: service-layer
+  source:
+    directory:
+      recurse: true
+    path: cluster
+    repoURL: https://github.com/tony-fernandez/fiber-optic-network-service.git
+    targetRevision: HEAD

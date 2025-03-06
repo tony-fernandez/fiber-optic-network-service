@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: fiber-optic-network-service
+    app.kubernetes.io/component: web
+    app.kubernetes.io/instance: fiber-optic-network-service
+    app.kubernetes.io/name: fiber-optic-network-service
+    app.kubernetes.io/part-of: fiber-optic-network-service
+    app.openshift.io/runtime: java
+  name: fiber-optic-network-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fiber-optic-network-service
+  template:
+    metadata:
+      labels:
+        app: fiber-optic-network-service
+    spec:
+      containers:
+        - name: fiber-optic-network-service
+          imagePullPolicy: Always
+          image: image-registry.openshift-image-registry.svc:5000/fiber-optic/fiber-optic-network-service:latest
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 45
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+            - containerPort: 8443
+              protocol: TCP
+            - containerPort: 8778
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 45
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5

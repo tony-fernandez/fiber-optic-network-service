@@ -1,0 +1,18 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: fiber-optic-network-service
+  namespace: fiber-optic
+  labels:
+    app: fiber-optic-network-service
+    app.kubernetes.io/component: fiber-optic-network-service
+    app.kubernetes.io/instance: fiber-optic-network-service
+spec:
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: fiber-optic-network-service
+  sessionAffinity: None
+  type: ClusterIP
