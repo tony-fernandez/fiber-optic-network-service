@@ -13,7 +13,7 @@ spec:
       recurse: true
     path: app
     repoURL: https://github.com/tony-fernandez/fiber-optic-network-service.git
-    targetRevision: main
+    targetRevision: master
   syncPolicy:
     syncOptions:
       - CreateNamespace=true
