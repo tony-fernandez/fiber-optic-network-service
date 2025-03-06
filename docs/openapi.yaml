@@ -1,0 +1,582 @@
+openapi: 3.0.3
+info:
+  title: Fiber Optic Network Termination API
+  version: 1.0.0
+servers:
+  - url: /
+paths:
+  /v1/we/{weId}/fiber-termination-points:
+    post:
+      tags:
+        - Fiber Termination Points
+      operationId: createFiberTerminationPoint
+      parameters:
+        - $ref: '#/components/parameters/weId'
+        - $ref: '#/components/parameters/x-mab-id'
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/FiberTerminationPoint'
+      responses:
+        201:
+          description: Fiber termination point was successfully created
+          headers:
+            Location:
+              description: URL for reading data of just created fiber termination elements
+              schema:
+                type: string
+              example:
+                '/v1/we/987654321/fiber-termination-points/12345678'
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/FiberTerminationPoint'
+        default:
+          $ref: '#/components/responses/Problem'
+
+    get:
+      tags:
+        - Fiber Termination Points
+      description: List data of all fiber termination points of this apartment
+      operationId: getFiberTerminationPoints
+      parameters:
+        - $ref: '#/components/parameters/weId'
+      responses:
+        200:
+          description: List of connection points for the apartment
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FiberTerminationPoint'
+        default:
+          $ref: '#/components/responses/Problem'
+
+  /v1/fiber-termination-points/{fiberTerminationPointId}:
+    get:
+      tags:
+        - Fiber Termination Points
+      operationId: getFiberTerminationPoint
+      description: List data of an of fiber termination points
+      parameters:
+        - $ref: '#/components/parameters/fiberTerminationPointId'
+      responses:
+        200:
+          description: Get data of an fiber termination point
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/FiberTerminationPoint'
+        default:
+          $ref: '#/components/responses/Problem'
+
+    put:
+      operationId: replaceFiberTerminationPoint
+      description: replace current fiber termination point with new device. \
+        This operation will only be used if the type of termination has changed.
+      tags:
+        - Fiber Termination Points
+      parameters:
+        - $ref: '#/components/parameters/fiberTerminationPointId'
+        - $ref: '#/components/parameters/x-mab-id'
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/FiberTerminationPoint'
+      responses:
+        200:
+          description: Fiber termination point was successfully replaced
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/FiberTerminationPoint'
+        default:
+          $ref: '#/components/responses/Problem'
+
+  /v1/fiber-termination-points/{fiberTerminationPointId}/fibers/{fiberId}:
+    patch:
+      tags:
+        - Fiber Termination Points
+      operationId: updateFiberData
+      description: Change state of previously registered fiber. \
+        This action should be discarded if any customer related services assigned to hardware connected to this faser.
+      parameters:
+        - $ref: '#/components/parameters/fiberTerminationPointId'
+        - $ref: '#/components/parameters/fiberId'
+        - $ref: '#/components/parameters/x-mab-id'
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/FiberData'
+      responses:
+        200:
+          description: Faser state has been successfully changed.
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/FiberData'
+        400:
+          description: Faser on this position was not registered before.
+        default:
+          $ref: '#/components/responses/Problem'
+
+  /v1/fiber-termination-points/{fiberTerminationPointId}/gftas:
+    delete:
+      tags:
+        - Fiber Termination Points
+      operationId: deleteGFTA
+      description: |
+        This action should be discarded if GFTA still has any brackets assigned -> Discard with message `GFTA still has brackets assigned`
+      parameters:
+        - $ref: '#/components/parameters/fiberTerminationPointId'
+        - $ref: '#/components/parameters/x-mab-id'
+      responses:
+        200:
+          description: GFTA removed
+        409:
+          description: Conflict while removing GFTA
+        default:
+          $ref: '#/components/responses/Problem'
+
+  /v1/fiber-termination-points/{fiberTerminationPointId}/gftas/brackets:
+    post:
+      tags:
+        - Fiber Termination Points
+      operationId: addBracket
+      parameters:
+        - $ref: '#/components/parameters/fiberTerminationPointId'
+        - $ref: '#/components/parameters/x-mab-id'
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/Bracket'
+      responses:
+        201:
+          description: Bracket successfully registered
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/Bracket'
+          headers:
+            Location:
+              description: Full url including bracket id, HomeID and woObjectId
+              schema:
+                type: string
+                format: url
+              example:
+                '/v1/we/987654321/fiber-termination-points/XGA12345/gftas/brackets/XGA12345-1'
+        default:
+          $ref: '#/components/responses/Problem'
+
+    get:
+      tags:
+        - Fiber Termination Points
+      operationId: getAllBrackets
+      parameters:
+        - $ref: '#/components/parameters/fiberTerminationPointId'
+      responses:
+        200:
+          description: List all brackets installed on this GFTA
+          content:
+            'application/json':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Bracket'
+        default:
+          $ref: '#/components/responses/Problem'
+
+  /v1/fiber-termination-points/{fiberTerminationPointId}/gftas/brackets/{bracketId}:
+    get:
+      tags:
+        - Fiber Termination Points
+      operationId: getBracket
+      parameters:
+        - $ref: '#/components/parameters/fiberTerminationPointId'
+        - $ref: '#/components/parameters/bracketId'
+      responses:
+        200:
+          description: get single bracket
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/Bracket'
+        default:
+          $ref: '#/components/responses/Problem'
+
+    delete:
+      tags:
+        - Fiber Termination Points
+      operationId: deleteBracket
+      description: |
+        This action should be discarded if bracket has an FT_MODULE which TYPE is 'ONT' -> Discard with message `Bracket still has ONT assigned`
+      parameters:
+        - $ref: '#/components/parameters/fiberTerminationPointId'
+        - $ref: '#/components/parameters/bracketId'
+        - $ref: '#/components/parameters/x-mab-id'
+      responses:
+        200:
+          description: bracket was successfully removed
+        default:
+          $ref: '#/components/responses/Problem'
+
+    patch:
+      tags:
+        - Fiber Termination Points
+      operationId: updateBracket
+      parameters:
+        - $ref: '#/components/parameters/fiberTerminationPointId'
+        - $ref: '#/components/parameters/bracketId'
+        - $ref: '#/components/parameters/x-mab-id'
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              type: object
+              properties:
+                fiberTwistModule:
+                  $ref: '#/components/schemas/FiberTwistModule'
+      responses:
+        200:
+          description: Bracket was successfully updated
+        default:
+          $ref: '#/components/responses/Problem'
+
+  /v1/fiber-termination-points/{fiberTerminationPointId}/ftus:
+    patch:
+      tags:
+        - Fiber Termination Points
+      operationId: replaceFiberTwistModule
+      parameters:
+        - $ref: '#/components/parameters/fiberTerminationPointId'
+        - $ref: '#/components/parameters/x-mab-id'
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/FiberTwistModule'
+      responses:
+        200:
+          description: |
+            FiberTwistModule was switched \
+            NOTE: Changing the FiberTwist module type from 'ONT' to 'Cover' should trigger de-provisioning of an ONT, \
+              and switching from 'Cover' to 'ONT' should trigger provisioning. Similar behavior for changes to 'OpticalDistributionPoint' is not defined. \
+              Switching 'ONT' to 'ONT' and 'OpticalDistributionPoint' to 'OpticalDistributionPoint' is also important and must be triggered when changing serial numbers or model types.
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/FiberTwistModule'
+        default:
+          $ref: '#/components/responses/Problem'
+
+    delete:
+      tags:
+        - Fiber Termination Points
+      operationId: deleteFiberTerminationUnit
+      parameters:
+        - $ref: '#/components/parameters/fiberTerminationPointId'
+        - $ref: '#/components/parameters/x-mab-id'
+      description: |
+        The only case is completely remove of whole equipment (Building deconstruction for example)
+        This action should be discarded if FiberTerminationUnit has an FiberTwistModule which TYPE is 'ONT' -> Discard with message `FiberTerminationUnit still has ONT assigned`
+      responses:
+        200:
+          description: Fiber termination unit removed
+        409:
+          description: Conflict while removing FiberTerminationUnit
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        default:
+          $ref: '#/components/responses/Problem'
+
+  /v1/validations:
+    get:
+      tags:
+        - Validations
+      operationId: validate
+      description: Validate syntax and availability of Fiber Termination Point Id.
+      parameters:
+        - in: query
+          name: fiberTerminationPointId
+          schema:
+            $ref: '#/components/schemas/HomeID'
+            required: true
+      responses:
+        202:
+          description: HomeID is syntactically correct and was not already used before.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: 'Ok'
+        409:
+          description: HomeID was either invalid or is already in use.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        default:
+          $ref: '#/components/responses/Problem'
+
+components:
+  schemas:
+    HomeID:
+      description: Home ID
+      type: string
+      maxLength: 8
+      minLength: 8
+
+    FiberTerminationPoint:
+      type: object
+      discriminator:
+        propertyName: type
+        mapping:
+          FIBER_TERMINATION_UNIT: '#/components/schemas/FiberTerminationUnit'
+          HYBRID: '#/components/schemas/Hybrid'
+          FIBER_TERMINATION_OUTLET: '#/components/schemas/FiberTerminationOutlet'
+      description: Prototype für ein faseraufnehmende Teil
+      properties:
+        type:
+          type: string
+          enum:
+            - FIBER_TERMINATION_UNIT
+            - HYBRID
+            - FIBER_TERMINATION_OUTLET
+        model:
+          type: string
+          description: Model name for this module
+        homeId:
+          $ref: '#/components/schemas/HomeID'
+        fibers:
+          type: array
+          items:
+            $ref: "#/components/schemas/FiberData"
+        slots:
+          type: array
+          items:
+            $ref: '#/components/schemas/Slot'
+        patchOutType:
+          type: string
+      required:
+        - type
+        - homeId
+        - fibers
+
+    FiberTerminationOutlet:
+      description: Neutral fiber termination point
+      allOf:
+        - $ref: "#/components/schemas/FiberTerminationPoint"
+        - type: object
+          properties:
+            brackets:
+              type: array
+              items:
+                $ref: "#/components/schemas/Bracket"
+
+    FiberTerminationUnit:
+      allOf:
+        - $ref: "#/components/schemas/FiberTerminationPoint"
+        - type: object
+          properties:
+            fiberTwistModule:
+              $ref: "#/components/schemas/FiberTwistModule"
+            serialNumber:
+              type: string
+      required:
+        - fiberTwistModule
+
+    Hybrid:
+      allOf:
+        - $ref: "#/components/schemas/FiberTerminationPoint"
+        - properties:
+            connectionStatus:
+              type: integer
+              format: int32
+            serialNumber:
+              type: string
+
+    Bracket:
+      type: object
+      properties:
+        portNumber:
+          type: integer
+          format: int32
+        homeId:
+          $ref: '#/components/schemas/HomeID'
+        bracketType:
+          type: string
+        fiberTwistModule:
+          $ref: "#/components/schemas/FiberTwistModule"
+
+    FiberTwistModule:
+      description: FiberTwist Module
+      type: object
+      discriminator:
+        propertyName: category
+        mapping:
+          COVER: '#/components/schemas/Cover'
+          OPTICAL_DISTRIBUTION_POINT: '#/components/schemas/OpticalDistributionPoint'
+          OPTICAL_NETWORK_TERMINAL: '#/components/schemas/OpticalNetworkTerminal'
+      properties:
+        category:
+          type: string
+          enum:
+            - COVER
+            - OPTICAL_DISTRIBUTION_POINT
+            - OPTICAL_NETWORK_TERMINAL
+      required:
+        - category
+
+    OpticalDistributionPoint:
+      allOf:
+        - $ref: '#/components/schemas/FiberTwistModule'
+        - type: object
+          properties:
+            model:
+              type: string
+              description: Model name for this module
+            slots:
+              type: array
+              items:
+                $ref: '#/components/schemas/Slot'
+
+    OpticalNetworkTerminal:
+      allOf:
+        - $ref: '#/components/schemas/FiberTwistModule'
+        - type: object
+          properties:
+            model:
+              type: string
+              description: Model name for this module
+            serialNumber:
+              type: string
+              description: Serial  number for this module
+
+    Cover:
+      allOf:
+        - $ref: '#/components/schemas/FiberTwistModule'
+
+    FiberId:
+      type: integer
+      format: int32
+      description: Identifier of a glass fiber
+
+    FiberData:
+      type: object
+      properties:
+        fiberId:
+          $ref: '#/components/schemas/FiberId'
+        attenuation:
+          type: number
+          description: Optical attenuation
+        onLight:
+          type: boolean
+          description: this fiber is spliced and signal is supplied. Can only be true if fiber is connected too.
+        connected:
+          type: boolean
+          description: this fiber is spliced
+        reserved:
+          type: boolean
+          description: True implies this fiber is incoming but not currently used
+
+    Slot:
+      type: object
+      properties:
+        slotType:
+          type: string
+          enum:
+            - TV
+            - VOICE
+            - LC_APC
+            - SC_APC
+        portCount:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 4
+
+    Problem:
+      type: object
+      properties:
+        type:
+          type: string
+          format: uri-reference
+          default: 'about:blank'
+          example: '/some/uri-reference'
+        title:
+          type: string
+          description: HTTP error message.
+          example: Bad Request
+        status:
+          type: integer
+          format: int32
+          minimum: 100
+          maximum: 600
+          exclusiveMaximum: true
+          description: HTTP error code.
+          example: 400
+        detail:
+          type: string
+          description: A human readable error description.
+        instance:
+          type: string
+          format: uri-reference
+
+  parameters:
+    bracketId:
+      in: path
+      name: bracketId
+      schema:
+        $ref: "#/components/schemas/HomeID"
+      required: true
+
+    weId:
+      in: path
+      name: weId
+      schema:
+        type: integer
+        format: int64
+      required: true
+
+    fiberTerminationPointId:
+      in: path
+      name: fiberTerminationPointId
+      schema:
+        $ref: '#/components/schemas/HomeID'
+      required: true
+
+    fiberId:
+      in: path
+      name: fiberId
+      schema:
+        $ref: '#/components/schemas/FiberId'
+      required: true
+
+    x-mab-id:
+      in: header
+      schema:
+        type: string
+        maxLength: 20
+      name: X-MAB-ID
+      description: >
+        An ID from MAB (internal software of PYUR/TC) representing the technician or contractor responsible for the changes. \
+        This ID will be used for logging operations.
+      required: true
+
+  responses:
+    Problem:
+      description: RFC 7807 problem response
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
